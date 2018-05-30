@@ -1,0 +1,22 @@
+{
+  "name": "squishybabs",
+  "version": "0.5.0",
+  "description": "Squishy creature for moddable zero",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "eslint ./",
+    "build": "cd src && mcconfig -m -r 90 -p esp",
+    "debug": "cd src && mcconfig -m -d -r 90 -p esp",
+    "sim": "cd src && mcconfig -m -r 90"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makerzeph/squishybabs.git"
+  },
+  "author": "makerzeph, techninja",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/makerzeph/squishybabs/issues"
+  },
+  "homepage": "https://github.com/makerzeph/squishybabs#readme"
+}
