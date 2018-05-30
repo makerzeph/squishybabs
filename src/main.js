@@ -2,176 +2,72 @@
  * Squishy Babs by Zephyrus Todd (with help from James Todd)
  *
  */
-/*
-  N.B.
-  Rectangle class modeled on FskRectangle.c (Apache License, Marvell Semiconductor)
-*/
 
-import parseBMF from "commodetto/parseBMF";
-import parseBMP from "commodetto/parseBMP";
-import Poco from "commodetto/Poco";
-import Resource from "Resource";
-import Timer from "timer";
+import {} from "piu/MC";
 import config from "mc/config";
 
-let render = new Poco(screen, {rotation: 90});
+//const desktopTexture = new Texture("desktop.png");
+const desktopSkin = new Skin({ fill: "blue" });
 
-let black = render.makeColor(0, 0, 0);
-let white = render.makeColor(255, 255, 255);
+const babsTexture = new Texture("babs.png");
+const babsSkin = new Skin({ texture: babsTexture, x:0, y:0, width: 215, height: 178});
 
-let font = parseBMF(new Resource("OpenSans-Regular-20.bf4"));
-let background = parseBMP(new Resource("desktop-color.bmp"));
-let button = parseBMP(new Resource("button-color.bmp"));
-button.alpha = parseBMP(new Resource("button-alpha.bmp"));
+const buttonTexture = new Texture("button.png");
+const buttonSkin = new Skin({ texture:buttonTexture, x:0, y:0, width:60, height:40, states:40, tiles:{ left:20, right:20 } });
+const buttonStyle = new Style({ font:"600 28px Open Sans", color:["red", "white"], });
 
-function drawBackground() {
-  render.fillPattern(background, 0, 0, render.width, render.height, 0, 0, background.width, background.height);
-}
-
-class Rectangle {
-  constructor(x, y, w, h) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+class DragBehavior extends Behavior {
+  onFinished(content) {
+    content.state = 0;
   }
-  contains(x, y) {
-    if (x >= this.x && x < this.x + this.w && y >= this.y && y < this.y + this.h)
-      return true;
-      return false;
-    }
-    static union(r1, r2) {
-    let r = new Rectangle();
-    if (r1.x > r2.x) {
-      r.x = r2.x;
-    } else {
-      r.x = r1.x;
-    }
-
-    if (r1.y > r2.y) {
-      r.y = r2.y;
-    } else {
-      r.y = r1.y;
-    }
-
-    let v1 = r1.x + r1.w;
-    let v2 = r2.x + r2.w;
-    if (v1 > v2) {
-      r.w = v1 - r.x;
-    } else {
-      r.w = v2 - r.x;
-    }
-
-    v1 = r1.y + r1.h;
-    v2 = r2.y + r2.h;
-
-    if (v1 > v2) {
-      r.h = v1 - r.y;
-    } else {
-      r.h = v2 - r.y;
-    }
-
-    return r;
+  onTimeChanged(content) {
+    content.state = 2 - Math.quadEaseOut(content.fraction);
+  }
+  onTouchBegan(content, id, x, y, ticks) {
+    let anchor = this.anchor = content.position;
+    anchor.x -= x;
+    anchor.y -= y;
+    content.state = 2;
+  }
+  onTouchMoved(content, id, x, y, ticks) {
+    let anchor = this.anchor;
+    content.position = { x:anchor.x + x, y:anchor.y + y };
+  }
+  onTouchEnded(content, id, x, y, ticks) {
+    content.duration = 250;
+    content.time = 0;
+    content.start();
   }
 }
 
-class Dragger {
-  constructor(x, y, label, image) {
-    this.image = image;
-    this.label = label;
-    this.bounds = new Rectangle(x, y, image.width, image.height >> 1);
-    this.anchor = {};
-    this.state = 0;
-  }
-  contains(x, y) {
-    return this.bounds.contains(x, y);
-  }
+const sideBar = $ =>
+  Container($, {
+    left: 0, top:0, width: 60, height: 240,
+    skin: new Skin({fill: "red"}),
+    contents: [
+      Label($, {left:10, top:10, width:40, height:40, skin:buttonSkin, string:"A", active:true, Behavior:DragBehavior}),
+      Label($, {left:10, top:70, width:40, height:40, skin:buttonSkin, string:"B", active:true, Behavior:DragBehavior}),
+      Label($, {left:10, top:130, width:40, height:40, skin:buttonSkin, string:"C", active:true, Behavior:DragBehavior}),
+      Label($, {left:10, top:190, width:40, height:40, skin:buttonSkin, string:"D", active:true, Behavior:DragBehavior}),
+    ]
+  });
 
-  draw() {
-    let image = this.image;
-    let label = this.label;
-    let x = this.bounds.x;
-    let y = this.bounds.y;
-    let width = this.bounds.w;
-    let height = this.bounds.h;
-    let sx = 0;
-    let sy = (0 == this.state ? 0 : height);
-    let color = (0 == this.state ? black : white);
-    drawBackground();
-    render.drawMasked(image, x, y, sx, sy, width, height, image.alpha, sx, sy);
-    render.drawText(label, font, color,
-      ((width - render.getTextWidth(label, font)) >> 1) + x,
-      ((height - font.height) >> 1) + y
-    );
-  }
+const playSpace = $ =>
+  Container($, {
+    right: 0, top:0, width: 240, height: 240,
+    skin: new Skin({fill: "green"}),
+    contents: [
+      Label($, {left:10, top:10, width:200, height:40, skin:buttonSkin, string:"Play Space", active:true, Behavior:DragBehavior}),
+      Content(0, {skin:babsSkin}),
+    ]
+  });
 
-  onTouchBegan(x, y) {
-    this.anchor.x = this.bounds.x - x;
-    this.anchor.y = this.bounds.y - y;
-    this.state = 1;
-    this.update();
-  }
+let DragApplication = Application.template($ => ({
+  skin:desktopSkin, style:buttonStyle,
+  contents: [
+    playSpace($),
+    sideBar($)
+  ]
+}));
 
-  onTouchMoved(x, y) {
-    let currentBounds = this.bounds;
-    let newBounds = new Rectangle(this.anchor.x + x, this.anchor.y + y, this.bounds.w, this.bounds.h);
-    let unionBounds = Rectangle.union(currentBounds, newBounds);
-    this.bounds = newBounds;
-    render.begin(unionBounds.x, unionBounds.y, unionBounds.w, unionBounds.h);
-    this.draw();
-    render.end();
-  }
-
-  onTouchEnded(x, y) {
-    this.state = 0;
-    this.update();
-  }
-
-  update() {
-    render.begin(this.bounds.x, this.bounds.y, this.bounds.w, this.bounds.h);
-    this.draw();
-    render.end();
-  }
-}
-
-let dragger = new Dragger(
-  (render.width - button.width) >> 1,
-  (render.height - (button.height >> 1)) >> 1,
-  "Food!",
-  button
-);
-
-let touch = require(config.touch);
-touch = new touch;
-touch.points = [{}];
-
-render.begin();
-  drawBackground();
-  dragger.draw();
-render.end();
-
-let timer = Timer.repeat(() => {
-  let points = touch.points;
-  touch.read(points);
-  let point = points[0];
-  switch (point.state) {
-  case 0:
-  case 3:
-  if (point.down) {
-    delete point.down;
-    dragger.onTouchEnded(point.x, point.y);
-    delete point.x;
-    delete point.y;
-  }
-  break;
-  case 1:
-  if (dragger.contains(point.x, point.y) && !point.down) {
-    point.down = true;
-    dragger.onTouchBegan(point.x, point.y);
-  }
-  break;
-  case 2:
-    dragger.onTouchMoved(point.x, point.y);
-  break;
-  }
-}, 17);
+export default new DragApplication(null, { commandListLength:4096, displayListLength:4096, touchCount:config.touchCount });
