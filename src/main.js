@@ -13,7 +13,7 @@ const babsTexture = new Texture("babs.png");
 const babsSkin = new Skin({ texture: babsTexture, x:0, y:0, width: 215, height: 178});
 
 const foodTexture = new Texture("foods.png");
-const foodSkin = new Skin({ texture: foodTexture, x:0, y:0, width: 60, height: 60, variants:60});
+const foodSkin = new Skin({ texture: foodTexture, x:0, y:0, width: 50, height: 50, variants:50});
 
 const buttonTexture = new Texture("button.png");
 const buttonSkin = new Skin({ texture:buttonTexture, x:0, y:0, width:60, height:40, states:40, tiles:{ left:20, right:20 } });
@@ -48,10 +48,10 @@ const sideBar = $ =>
     left: 0, top:0, width: 60, height: 240,
     skin: new Skin({fill: "red"}),
     contents: [
-      Content(4, {left:0, top:0, skin:foodSkin, active:true, variant:0, Behavior:DragBehavior}),
-      Content(3, {left:0, top:60, skin:foodSkin, active:true, variant:1, Behavior:DragBehavior}),
-      Content(2, {left:0, top:120, skin:foodSkin, active:true, variant:2, Behavior:DragBehavior}),
-      Content(1, {left:0, top:180, skin:foodSkin, active:true, variant:3, Behavior:DragBehavior}),
+      Content(4, {left:5, top:5, skin:foodSkin, active:true, variant:0, Behavior:DragBehavior}),
+      Content(3, {left:5, top:65, skin:foodSkin, active:true, variant:1, Behavior:DragBehavior}),
+      Content(2, {left:5, top:125, skin:foodSkin, active:true, variant:2, Behavior:DragBehavior}),
+      Content(1, {left:5, top:185, skin:foodSkin, active:true, variant:3, Behavior:DragBehavior}),
     ]
   });
 
@@ -60,7 +60,6 @@ const playSpace = $ =>
     right: 0, top:0, width: 240, height: 240,
     skin: new Skin({fill: "green"}),
     contents: [
-      Label($, {left:10, top:10, width:200, height:40, skin:buttonSkin, string:"Play Space", active:true, Behavior:DragBehavior}),
       Content(0, {skin:babsSkin}),
     ]
   });
