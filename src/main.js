@@ -46,12 +46,12 @@ class DragBehavior extends Behavior {
 const sideBar = $ =>
   Container($, {
     left: 0, top:0, width: 60, height: 240,
-    skin: new Skin({fill: "red"}),
+    skin: new Skin({fill: "purple"}),
     contents: [
-      Content(4, {left:5, top:5, skin:foodSkin, active:true, variant:0, Behavior:DragBehavior}),
-      Content(3, {left:5, top:65, skin:foodSkin, active:true, variant:1, Behavior:DragBehavior}),
-      Content(2, {left:5, top:125, skin:foodSkin, active:true, variant:2, Behavior:DragBehavior}),
-      Content(1, {left:5, top:185, skin:foodSkin, active:true, variant:3, Behavior:DragBehavior}),
+      Content(4, {left:5, top:5, skin:foodSkin, active:true, variant:2, Behavior:DragBehavior}),
+      Content(3, {left:5, top:65, skin:foodSkin, active:true, variant:4, Behavior:DragBehavior}),
+      Content(2, {left:5, top:125, skin:foodSkin, active:true, variant:6, Behavior:DragBehavior}),
+      Content(1, {left:5, top:185, skin:foodSkin, active:true, variant:7, Behavior:DragBehavior}),
     ]
   });
 
